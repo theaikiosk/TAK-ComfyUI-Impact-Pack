@@ -32,6 +32,8 @@ class GeneralSwitch:
                     "select": ("INT", {"default": 1, "min": 1, "max": 999999, "step": 1, "tooltip": "The input number you want to output among the inputs"}),
                     "sel_mode": ("BOOLEAN", {"default": False, "label_on": "select_on_prompt", "label_off": "select_on_execution", "forceInput": False,
                                              "tooltip": "In the case of 'select_on_execution', the selection is dynamically determined at the time of workflow execution. 'select_on_prompt' is an option that exists for older versions of ComfyUI, and it makes the decision before the workflow execution."}),
+                    "combine_mode": ("BOOLEAN", {"default": False, "label_on": "combine_inputs_as_json", "label_off": "select_one_input", "forceInput": False,
+                                                 "tooltip": "If true, the inputs will be combined into a single JSON object. If false, the inputs will be selected one by one."}),
                     },
                 "optional": dyn_inputs,
                 "hidden": {"unique_id": "UNIQUE_ID", "extra_pnginfo": "EXTRA_PNGINFO"}
@@ -59,6 +61,14 @@ class GeneralSwitch:
 
     @staticmethod
     def doit(*args, **kwargs):
+        if kwargs['combine_mode']:
+            # each input is a json object
+            # combine them into a single json object
+            combined_json = {}
+            for input_name in kwargs:
+                combined_json.update(kwargs[input_name])
+            return combined_json, selected_label, selected_index
+
         selected_index = int(kwargs['select'])
         input_name = f"input{selected_index}"
 
