@@ -1,3 +1,4 @@
+import json
 from impact.utils import any_typ, ByPassTypeTuple, make_3d_mask
 import comfy_extras.nodes_mask
 from nodes import MAX_RESOLUTION
@@ -66,8 +67,8 @@ class GeneralSwitch:
             # combine them into a single json object
             combined_json = {}
             for input_name in kwargs:
-                combined_json.update(kwargs[input_name])
-            return combined_json, selected_label, selected_index
+                combined_json.update(json.loads(kwargs[input_name]))
+            return json.dumps(combined_json), selected_label, selected_index
 
         selected_index = int(kwargs['select'])
         input_name = f"input{selected_index}"
