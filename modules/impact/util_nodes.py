@@ -53,7 +53,7 @@ class GeneralSwitch:
         selected_index = int(kwargs['select'])
         input_name = f"input{selected_index}"
 
-        print(f"SELECTED: {input_name}")
+        # print(f"SELECTED: {input_name}")
 
         if input_name in kwargs:
             return [input_name]
