@@ -251,7 +251,7 @@ NOTE: The UltralyticsDetectorProvider node is not part of the ComfyUI-Impact-Pac
 
 
 ### Impact KSampler
-  * These samplers support basic_pipe and AYS scheduler
+  * These samplers support basic_pipe and AYS/OSS/GITS scheduler
   * `KSampler (pipe)` - pipe version of KSampler
   * `KSampler (advanced/pipe)` - pipe version of KSamplerAdvacned
   * When converting the scheduler widget to input, refer to the `Impact Scheduler Adapter` node to resolve compatibility issues.
@@ -268,6 +268,7 @@ NOTE: The UltralyticsDetectorProvider node is not part of the ComfyUI-Impact-Pac
   * `Masks to Mask List`, `Mask List to Masks`, `Make Mask List`, `Make Mask Batch` - It has the same functionality as the nodes above, but uses mask as input instead of image.
   * `Flatten Mask Batch` - Flattens a Mask Batch into a single Mask. Normal operation is not guaranteed for non-binary masks. 
   * `Make List (Any)` - Create a list with arbitrary values.
+  * `Select Nth Item (Any list)` - Selects the Nth item from a list. If the index is out of range, it returns the last item in the list. 
 
 ### Logics (experimental) 
   * These nodes are experimental nodes designed to implement the logic for loops and dynamic switching.
