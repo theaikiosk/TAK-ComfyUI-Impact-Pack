@@ -10,6 +10,7 @@ import re
 import impact.core as core
 from server import PromptServer
 import inspect
+import logging
 
 
 class GeneralSwitch:
@@ -88,12 +89,12 @@ class GeneralSwitch:
 
                     break
         else:
-            print(f"[Impact-Pack] The switch node does not guarantee proper functioning in API mode.")
+            logging.info("[Impact-Pack] The switch node does not guarantee proper functioning in API mode.")
 
         if input_name in kwargs:
             return kwargs[input_name], selected_label, selected_index
         else:
-            print(f"ImpactSwitch: invalid select index (ignored)")
+            logging.info("ImpactSwitch: invalid select index (ignored)")
             return None, "", selected_index
 
 class LatentSwitch:
@@ -119,7 +120,7 @@ class LatentSwitch:
         if input_name in kwargs:
             return (kwargs[input_name],)
         else:
-            print(f"LatentSwitch: invalid select index ('latent1' is selected)")
+            logging.info("LatentSwitch: invalid select index ('latent1' is selected)")
             return (kwargs['latent1'],)
 
 
@@ -187,7 +188,7 @@ class GeneralInversedSwitch:
         if core.is_execution_model_version_supported():
             from comfy_execution.graph import ExecutionBlocker
         else:
-            print("[Impact Pack] InversedSwitch: ComfyUI is outdated. The 'select_on_execution' mode cannot function properly.")
+            logging.warning("[Impact Pack] InversedSwitch: ComfyUI is outdated. The 'select_on_execution' mode cannot function properly.")
 
         res = []
 
@@ -275,9 +276,9 @@ class ImpactLogger:
         if hasattr(data, "shape"):
             shape = f"{data.shape} / "
 
-        print(f"[IMPACT LOGGER]: {shape}{data}")
+        logging.info(f"[IMPACT LOGGER]: {shape}{data}")
 
-        print(f"         PROMPT: {prompt}")
+        logging.info(f"         PROMPT: {prompt}")
 
         # for x in prompt:
         #     if 'inputs' in x and 'populated_text' in x['inputs']:
@@ -328,8 +329,6 @@ class MasksToMaskList:
 
         for mask in masks:
             res.append(mask)
-
-        print(f"mask len: {len(res)}")
 
         res = [make_3d_mask(x) for x in res]
 

@@ -1,3 +1,5 @@
+import logging
+
 import nodes
 from comfy.k_diffusion import sampling as k_diffusion_sampling
 from comfy import samplers
@@ -13,7 +15,7 @@ try:
     from comfy_extras.nodes_custom_sampler import Noise_EmptyNoise, Noise_RandomNoise
     import node_helpers
 except:
-    print(f"\n#############################################\n[Impact Pack] ComfyUI is an outdated version.\n#############################################\n")
+    logging.warning("\n#############################################\n[Impact Pack] ComfyUI is an outdated version.\n#############################################\n")
     raise Exception("[Impact Pack] ComfyUI is an outdated version.")
 
 
@@ -176,7 +178,7 @@ def separated_sample(model, add_noise, seed, steps, cfg, sampler_name, scheduler
 
     if len(sigmas) == 0 or (len(sigmas) == 1 and sigmas[0] == 0):
         return latent_image
-    
+
     res = sample_with_custom_noise(model, add_noise, seed, cfg, positive, negative, impact_sampler, sigmas, latent_image, noise=noise, callback=callback)
 
     if return_with_leftover_noise:
@@ -194,7 +196,7 @@ def impact_sample(model, seed, steps, cfg, sampler_name, scheduler, positive, ne
 
 
 def ksampler_wrapper(model, seed, steps, cfg, sampler_name, scheduler, positive, negative, latent_image, denoise,
-                     refiner_ratio=None, refiner_model=None, refiner_clip=None, refiner_positive=None, refiner_negative=None, sigma_factor=1.0, noise=None, scheduler_func=None):
+                     refiner_ratio=None, refiner_model=None, refiner_clip=None, refiner_positive=None, refiner_negative=None, sigma_factor=1.0, noise=None, scheduler_func=None, sampler_opt=None):
 
     if refiner_ratio is None or refiner_model is None or refiner_clip is None or refiner_positive is None or refiner_negative is None:
         # Use separated_sample instead of KSampler for `AYS scheduler`
@@ -206,7 +208,7 @@ def ksampler_wrapper(model, seed, steps, cfg, sampler_name, scheduler, positive,
 
         refined_latent = separated_sample(model, True, seed, advanced_steps, cfg, sampler_name, scheduler,
                                           positive, negative, latent_image, start_at_step, end_at_step, False,
-                                          sigma_ratio=sigma_factor, noise=noise, scheduler_func=scheduler_func)
+                                          sigma_ratio=sigma_factor, sampler_opt=sampler_opt, noise=noise, scheduler_func=scheduler_func)
     else:
         advanced_steps = math.floor(steps / denoise)
         start_at_step = advanced_steps - steps
@@ -215,7 +217,7 @@ def ksampler_wrapper(model, seed, steps, cfg, sampler_name, scheduler, positive,
         # print(f"pre: {start_at_step} .. {end_at_step} / {advanced_steps}")
         temp_latent = separated_sample(model, True, seed, advanced_steps, cfg, sampler_name, scheduler,
                                        positive, negative, latent_image, start_at_step, end_at_step, True,
-                                       sigma_ratio=sigma_factor, noise=noise, scheduler_func=scheduler_func)
+                                       sigma_ratio=sigma_factor, sampler_opt=sampler_opt, noise=noise, scheduler_func=scheduler_func)
 
         if 'noise_mask' in latent_image:
             # noise_latent = \
@@ -229,7 +231,7 @@ def ksampler_wrapper(model, seed, steps, cfg, sampler_name, scheduler, positive,
         # print(f"post: {end_at_step} .. {advanced_steps + 1} / {advanced_steps}")
         refined_latent = separated_sample(refiner_model, False, seed, advanced_steps, cfg, sampler_name, scheduler,
                                           refiner_positive, refiner_negative, temp_latent, end_at_step, advanced_steps + 1, False,
-                                          sigma_ratio=sigma_factor, scheduler_func=scheduler_func)
+                                          sigma_ratio=sigma_factor, sampler_opt=sampler_opt, scheduler_func=scheduler_func)
 
     return refined_latent
 
@@ -275,7 +277,7 @@ class KSamplerAdvancedWrapper:
                                                 sampler_opt=self.sampler_opt, noise=noise, scheduler_func=self.scheduler_func)
         except ValueError as e:
             if str(e) == 'sigma_min and sigma_max must not be 0':
-                print(f"\nWARN: sampling skipped - sigma_min and sigma_max are 0")
+                logging.warning("\nWARN: sampling skipped - sigma_min and sigma_max are 0")
                 return latent_image
 
         if (recovery_sigma_ratio > 0 and recovery_mode != 'DISABLE' and
@@ -299,7 +301,7 @@ class KSamplerAdvancedWrapper:
                                                 sigma_ratio=recovery_sigma_ratio * sigma_factor, sampler_opt=self.sampler_opt, scheduler_func=self.scheduler_func)
             except ValueError as e:
                 if str(e) == 'sigma_min and sigma_max must not be 0':
-                    print(f"\nWARN: sampling skipped - sigma_min and sigma_max are 0")
+                    logging.warning("\nWARN: sampling skipped - sigma_min and sigma_max are 0")
 
         return latent_image
 
